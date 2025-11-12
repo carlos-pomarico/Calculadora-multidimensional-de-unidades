@@ -4,6 +4,7 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 public class CalculadoraMultidimensional extends JFrame {
@@ -29,7 +30,11 @@ public class CalculadoraMultidimensional extends JFrame {
     
     public CalculadoraMultidimensional() {
         conversionManager = new ConversionManager();
-        df = new DecimalFormat("#,##0.##########");
+        //Formato con coma para decimales y punto para miles
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.getDefault());
+        symbols.setDecimalSeparator(',');
+        symbols.setGroupingSeparator('.');
+        df = new DecimalFormat("#,##0.##########", symbols);
         
         initComponents();
         setupLayout();
@@ -53,168 +58,174 @@ public class CalculadoraMultidimensional extends JFrame {
         comboMagnitud.setPreferredSize(new Dimension(200, 25));
         
         comboUnidadOrigen = new JComboBox<>();
-        comboUnidadOrigen.setFont(new Font("Tahoma", Font.BOLD, 12));
-        comboUnidadOrigen.setPreferredSize(new Dimension(170, 25));
+        comboUnidadOrigen.setFont(new Font("Tahoma", Font.BOLD, 11));
+        comboUnidadOrigen.setPreferredSize(new Dimension(180, 25));
         
         comboUnidadDestino = new JComboBox<>();
-        comboUnidadDestino.setFont(new Font("Tahoma", Font.BOLD, 12));
-        comboUnidadDestino.setPreferredSize(new Dimension(170, 25));
+        comboUnidadDestino.setFont(new Font("Tahoma", Font.BOLD, 11));
+        comboUnidadDestino.setPreferredSize(new Dimension(180, 25));
         
         txtValor = new JTextField(10);
         txtValor.setFont(new Font("Tahoma", Font.BOLD, 13));
-        txtValor.setPreferredSize(new Dimension(100, 25));
+        txtValor.setPreferredSize(new Dimension(140, 40));
         
         lblResultado = new JLabel("0.0");
         lblResultado.setFont(new Font("Tahoma", Font.BOLD, 16));
-        lblResultado.setForeground(new Color(0, 102, 204));
+        lblResultado.setForeground(new Color(255,255,255));
         
         txtDescripcion = new JTextArea(3, 35);
         txtDescripcion.setEditable(false);
         txtDescripcion.setLineWrap(true);
         txtDescripcion.setWrapStyleWord(true);
-        txtDescripcion.setFont(new Font("Tahoma", Font.PLAIN, 12));
-        txtDescripcion.setBackground(new Color(240, 248, 255));
+        txtDescripcion.setFont(new Font("Tahoma", Font.BOLD, 11));
+        txtDescripcion.setBackground(new Color(17,48,61));
+        txtDescripcion.setForeground(new Color(255,255,255));
         txtDescripcion.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         
-        // BOTÓN CONVERTIR
+        //Botón de convertir
         btnConvertir = new JButton("Convertir");
         btnConvertir.setFont(new Font("Tahoma", Font.BOLD, 13));
         btnConvertir.setPreferredSize(new Dimension(130, 35));
-        btnConvertir.setBackground(new Color(34, 139, 34));
-        btnConvertir.setForeground(Color.WHITE);
+        btnConvertir.setForeground(new Color(17,48,61));
         btnConvertir.setFocusPainted(false);
         btnConvertir.setOpaque(true);
-        btnConvertir.setBorderPainted(false);
+        btnConvertir.setBorderPainted(true);
         btnConvertir.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        // BOTÓN LIMPIAR
+        //Botón de limpiar
         btnLimpiar = new JButton("Limpiar");
         btnLimpiar.setFont(new Font("Tahoma", Font.BOLD, 13));
+        btnLimpiar.setForeground(new Color(17,48,61));
         btnLimpiar.setPreferredSize(new Dimension(130, 35));
         btnLimpiar.setFocusPainted(false);
         btnLimpiar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        // BOTÓN PROCEDIMIENTO
+        //Botón de procedimiento
         btnProcedimiento = new JButton("Ver Procedimiento");
         btnProcedimiento.setFont(new Font("Tahoma", Font.BOLD, 13));
         btnProcedimiento.setPreferredSize(new Dimension(160, 35));
-        btnProcedimiento.setBackground(new Color(0, 102, 204));
-        btnProcedimiento.setForeground(Color.WHITE);
+        btnProcedimiento.setForeground(new Color(17,48,61));
         btnProcedimiento.setFocusPainted(false);
         btnProcedimiento.setOpaque(true);
-        btnProcedimiento.setBorderPainted(false);
+        btnProcedimiento.setBorderPainted(true);
         btnProcedimiento.setEnabled(false);
         btnProcedimiento.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        // Cargar unidades iniciales
+        //Cargar unidades iniciales
         actualizarUnidades();
     }
     
     private void setupLayout() {
-        setLayout(new BorderLayout(0, 0));
+        //AbsoluteLayout para el control del formato
+        setLayout(null);
+        getContentPane().setBackground(new Color(17,48,61));
         
-        // Panel superior con título
-        JPanel panelTitulo = new JPanel();
-        panelTitulo.setBackground(new Color(255, 255, 255));
-        panelTitulo.setPreferredSize(new Dimension(580, 40));
+        //Panel del título
+        JPanel panelTitulo = new JPanel(null);
+        panelTitulo.setBackground(new Color(255,255,255));
+        panelTitulo.setBounds(0, 0, 520, 50);
+        
         JLabel lblTitulo = new JLabel("Calculadora Multidimensional de Unidades");
         lblTitulo.setFont(new Font("Tahoma", Font.BOLD, 18));
         lblTitulo.setForeground(new Color(17,48,61));
+        lblTitulo.setBounds(40, 10, 440, 30);
         panelTitulo.add(lblTitulo);
         
-        // Panel central principal
-        JPanel panelCentral = new JPanel();
-        panelCentral.setLayout(new BoxLayout(panelCentral, BoxLayout.Y_AXIS));
-        panelCentral.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
-        panelCentral.setBackground(new Color(17,48,61));
-        
-        // 1. PANEL DE MAGNITUD
-        JPanel panelMagnitud = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        panelMagnitud.setBackground(new Color(17,48,61));
-        panelMagnitud.setMaximumSize(new Dimension(480, 40));
+        //Etiqueta seleccione la magnitud
         JLabel lblMagnitud = new JLabel("Seleccione la magnitud:");
+        lblMagnitud.setFont(new Font("Tahoma", Font.BOLD, 13));
         lblMagnitud.setForeground(new Color(255,255,255));
-        lblMagnitud.setFont(new Font("Tahoma", Font.BOLD, 12));
-        panelMagnitud.add(lblMagnitud);
-        panelMagnitud.add(comboMagnitud);
+        lblMagnitud.setBounds(30, 65, 160, 25);
         
-        // 2. PANEL DE DESCRIPCIÓN
+        //Combo box magnitudes
+        comboMagnitud.setBounds(190, 65, 200, 25);
+        
+        //Panel de la descripción
         JPanel panelDescripcion = new JPanel(new BorderLayout());
         panelDescripcion.setBackground(new Color(17,48,61));
-        panelDescripcion.setMaximumSize(new Dimension(480, 95));
+        panelDescripcion.setBounds(30, 100, 460, 95);
         panelDescripcion.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(new Color(200, 200, 200)), 
+            BorderFactory.createLineBorder(new Color(200, 200, 200), 2), 
             "Información de la Magnitud",
             TitledBorder.LEFT,
             TitledBorder.TOP,
-            new Font("Tahoma", Font.BOLD, 11), // 5to argumento: Font
-            new Color(255, 255, 255)));       // 6to argumento: Color del título (¡Blanco!)
+            new Font("Tahoma", Font.BOLD, 11),
+            new Color(255, 255, 255)));
+        
         JScrollPane scrollDescripcion = new JScrollPane(txtDescripcion);
         scrollDescripcion.setBorder(null);
         panelDescripcion.add(scrollDescripcion, BorderLayout.CENTER);
         
-        // 3. PANEL DE ENTRADA DE DATOS
-        JPanel panelEntrada = new JPanel(new FlowLayout(FlowLayout.CENTER,5, 10));
-        panelEntrada.setBackground(Color.WHITE);
-        panelEntrada.setMaximumSize(new Dimension(480, 100));
-        
+        //Etiquetas de valor e ingreso de datos
         JLabel lblValor = new JLabel("Valor:");
         lblValor.setFont(new Font("Tahoma", Font.BOLD, 12));
-        panelEntrada.add(lblValor);
-        panelEntrada.add(txtValor);
+        lblValor.setForeground(new Color(255,255,255));
+        lblValor.setBounds(40, 215, 50, 25);
+        
+        txtValor.setBounds(90, 215, 100, 25);
         
         JLabel lblDe = new JLabel("De:");
         lblDe.setFont(new Font("Tahoma", Font.BOLD, 12));
-        panelEntrada.add(lblDe);
-        panelEntrada.add(comboUnidadOrigen);
+        lblDe.setForeground(new Color(255,255,255));
+        lblDe.setBounds(210, 215, 30, 25);
+        
+        comboUnidadOrigen.setBounds(240, 215, 180, 25);
         
         JLabel lblA = new JLabel("A:");
         lblA.setFont(new Font("Tahoma", Font.BOLD, 12));
-        panelEntrada.add(lblA);
-        panelEntrada.add(comboUnidadDestino);
+        lblA.setForeground(new Color(255,255,255));
+        lblA.setBounds(210, 250, 30, 25);
         
-        // 4. PANEL DE RESULTADO
-        JPanel panelResultado = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 12));
-        panelResultado.setBackground(Color.WHITE);
-        panelResultado.setMaximumSize(new Dimension(480, 70));
+        comboUnidadDestino.setBounds(240, 250, 180, 25);
+        
+        //Panel del resultado
+        JPanel panelResultado = new JPanel(null);
+        panelResultado.setBackground(new Color(17,48,61));
+        panelResultado.setBounds(30, 290, 460, 75);
         panelResultado.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(new Color(0, 102, 204), 2),
+            BorderFactory.createLineBorder(new Color(200,200,200), 2),
             "Resultado",
             TitledBorder.CENTER,
             TitledBorder.TOP,
-            new Font("Tahoma", Font.BOLD, 13)));
+            new Font("Tahoma", Font.BOLD, 13),
+            new Color(255,255,255)));
+        
+        lblResultado.setBounds(50, 25, 360, 30);
+        lblResultado.setHorizontalAlignment(SwingConstants.CENTER);
         panelResultado.add(lblResultado);
         
-        // 5. PANEL DE BOTONES
-        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        panelBotones.setBackground(Color.WHITE);
-        panelBotones.setMaximumSize(new Dimension(480, 60));
-        panelBotones.add(btnConvertir);
-        panelBotones.add(btnLimpiar);
-        panelBotones.add(btnProcedimiento);
+        //Botones
+        btnConvertir.setBounds(30, 385, 130, 35);
+        btnLimpiar.setBounds(175, 385, 130, 35);
+        btnProcedimiento.setBounds(320, 385, 160, 35);
         
-        // Agregar todos los paneles al panel central con espaciado controlado
-        panelCentral.add(panelMagnitud);
-        panelCentral.add(Box.createRigidArea(new Dimension(0, 8)));
-        panelCentral.add(panelDescripcion);
-        panelCentral.add(Box.createRigidArea(new Dimension(0, 12)));
-        panelCentral.add(panelEntrada);
-        panelCentral.add(Box.createRigidArea(new Dimension(0, 8)));
-        panelCentral.add(panelResultado);
-        panelCentral.add(Box.createRigidArea(new Dimension(0, 10)));
-        panelCentral.add(panelBotones);
+        //Panel de créditos
+        JPanel panelCreditos = new JPanel(null);
+        panelCreditos.setBackground(new Color(17,48,61));
+        panelCreditos.setBounds(0, 470, 520, 30);
         
-        // Panel inferior con créditos
-        JPanel panelCreditos = new JPanel();
-        panelCreditos.setBackground(new Color(240, 240, 240));
-        panelCreditos.setPreferredSize(new Dimension(520, 30));
         JLabel lblCreditos = new JLabel("Universidad Piloto de Colombia - Proyecto de Aula 2025");
         lblCreditos.setFont(new Font("Tahoma", Font.ITALIC, 10));
+        lblCreditos.setBounds(80, 8, 400, 15);
+        lblCreditos.setForeground(new Color(255,255,255));
         panelCreditos.add(lblCreditos);
         
-        add(panelTitulo, BorderLayout.NORTH);
-        add(panelCentral, BorderLayout.CENTER);
-        add(panelCreditos, BorderLayout.SOUTH);
+        //Agregar todos los componentes
+        add(panelTitulo);
+        add(lblMagnitud);
+        add(comboMagnitud);
+        add(panelDescripcion);
+        add(lblValor);
+        add(txtValor);
+        add(lblDe);
+        add(comboUnidadOrigen);
+        add(lblA);
+        add(comboUnidadDestino);
+        add(panelResultado);
+        add(btnConvertir);
+        add(btnLimpiar);
+        add(btnProcedimiento);
+        add(panelCreditos);
     }
     
     private void setupListeners() {
@@ -297,7 +308,7 @@ public class CalculadoraMultidimensional extends JFrame {
                 "Por favor ingrese un valor numérico válido.",
                 "Error de formato",
                 JOptionPane.ERROR_MESSAGE);
-        } catch (HeadlessException ex) {
+        } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
                 "Error en la conversión: " + ex.getMessage(),
                 "Error",
@@ -374,7 +385,7 @@ public class CalculadoraMultidimensional extends JFrame {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
+        } catch (Exception e) {
             // Ignorar excepción
         }
         
@@ -410,7 +421,11 @@ class ConversionManager {
     public ConversionManager() {
         factoresConversion = new HashMap<>();
         descripciones = new HashMap<>();
-        df = new DecimalFormat("#,##0.##########");
+        // Formato con coma para decimales y punto para miles
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.getDefault());
+        symbols.setDecimalSeparator(',');
+        symbols.setGroupingSeparator('.');
+        df = new DecimalFormat("#,##0.##########", symbols);
         inicializarFactores();
         inicializarDescripciones();
     }
